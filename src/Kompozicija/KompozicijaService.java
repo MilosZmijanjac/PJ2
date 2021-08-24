@@ -1,21 +1,22 @@
 package Kompozicija;
 
+import Konstanta.Konstanta;
 import Teritorija.Element;
 import Teritorija.Mapa;
 import Kompozicija.Vagon.*;
+import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 public class KompozicijaService implements Runnable {
 
@@ -23,22 +24,12 @@ public class KompozicijaService implements Runnable {
     private WatchService watcher;
     private Group group;
     public static boolean stopThread;
-    private Map<String,String[]> kombinacije= Stream.of(new Object[][]{
-            {"LPE", new String[]{"LPE", "LUE", "VPR", "VPL", "VPSS", "VPZS"}},
-            {"LPD", new String[]{"LPD", "LUD", "VPR", "VPL", "VPSS", "VPZS"}},
-            {"LPP", new String[]{"LPP", "LUP", "VPR", "VPL", "VPSS", "VPZS"}},
-            {"LTD", new String[]{"LTD", "LUD", "VT"}},
-            {"LTE", new String[]{"LTE", "LUE", "VT"}},
-            {"LTP", new String[]{"LTP", "LUP", "VT"}},
-            {"LUE", new String[]{"LPE","LTE", "LUE", "VT", "VPR", "VPL", "VPSS", "VPZS", "VPN"}},
-            {"LUD", new String[]{"LPD","LTD", "LUD", "VT", "VPR", "VPL", "VPSS", "VPZS", "VPN"}},
-            {"LUP", new String[]{"LPP","LTP", "LUP", "VT", "VPR", "VPL", "VPSS", "VPZS", "VPN"}},
-            {"LME", new String[]{"VPN"}},
-            {"LMD", new String[]{"VPN"}},
-            {"LMP", new String[]{"VPN"}}}).collect(Collectors.toMap(data -> (String) data[0], data -> (String[]) data[1]));
+    public static FileHandler handler;
+
     static{
         try {
-            Logger.getLogger(KompozicijaService.class.getName()).addHandler(new FileHandler("logs/KompozicijaService.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"KompozicijaService.log");
+            Logger.getLogger(KompozicijaService.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -95,9 +86,15 @@ public class KompozicijaService implements Runnable {
             String krajnjaStanica = podaci[5];
 
             String[] nizDijelova=raspored.split(";");
-            if((brLokomotiva+brVagona)!=nizDijelova.length)
+            if((brLokomotiva+brVagona)!=nizDijelova.length) {
+                alert(fileName.getFileName().toString());
                 return;
+            }
             ArrayList<Element>elementi=kreirajKompoziciju(nizDijelova);
+            if(elementi==null) {
+                alert(fileName.getFileName().toString());
+                return;
+            }
             Mapa.getStanica(pocetnaStanica).staviKompozicijuURedCekanja(new Kompozicija(group,elementi,pocetnaStanica,krajnjaStanica,brzina));
         }
     }
@@ -109,9 +106,9 @@ public class KompozicijaService implements Runnable {
         if(nizDijelova[0].endsWith("E"))
             elementiKompozicije.add(new StrujnoPolje());
         for(String string : nizDijelova){
-            if(Arrays.stream((kombinacije.get(nizDijelova[0]))).noneMatch(string::equals))
+            if(Arrays.stream((Konstanta.kombinacije.get(nizDijelova[0]))).noneMatch(string::equals))
                 return null;
-            switch (string) {
+           switch (string) {
                 case "LPE" -> elementiKompozicije.add(new Lokomotiva(Pogon.ELEKTRICNI, TipLokomotive.PUTNICKA));
                 case "LPD" -> elementiKompozicije.add(new Lokomotiva(Pogon.DIZELSKI, TipLokomotive.PUTNICKA));
                 case "LPP" -> elementiKompozicije.add(new Lokomotiva(Pogon.PARNI, TipLokomotive.PUTNICKA));
@@ -134,7 +131,14 @@ public class KompozicijaService implements Runnable {
         }
         if(nizDijelova[0].endsWith("E"))
             elementiKompozicije.add(new StrujnoPolje());
-
+        Collections.reverse(elementiKompozicije);
       return elementiKompozicije;
+    }
+    private void alert(String fileName){
+        Platform.runLater(()->{
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Kompozicija iz fajla: "+fileName+" nije validna",ButtonType.OK);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+        });
     }
 }

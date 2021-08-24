@@ -1,11 +1,15 @@
 package Kompozicija.Vagon;
 
+import Konstanta.Konstanta;
+
+import java.io.File;
+
 public class VagonTeretni extends Vagon{
     private int nosivost;
     private static int count=0;
 
     public VagonTeretni() {
-        super(count+10, "VT"+count);
+        super(Konstanta.slikeFolder+ File.separator+"VT.png",count+10, "VT"+count);
         this.nosivost = count+2;
     }
 

@@ -1,6 +1,9 @@
 package Kompozicija;
 
+import Konstanta.Konstanta;
 import Teritorija.Element;
+
+import java.io.File;
 
 public class Lokomotiva extends Element {
     private String oznaka;
@@ -10,13 +13,12 @@ public class Lokomotiva extends Element {
     private static int count=0;
 
     public Lokomotiva( Pogon pogon, TipLokomotive tip) {
-        super("Train.png");
+        super(Konstanta.slikeFolder+ File.separator+"Train.png");
         this.oznaka = "oznaka:"+count;
         this.snaga = count+100;
         this.pogon = pogon;
         this.tip = tip;
         count++;
     }
-
 
 }

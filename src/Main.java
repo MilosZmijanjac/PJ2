@@ -1,6 +1,8 @@
+import IstorijaKretanja.IstorijaKretanja;
 import IstorijaKretanja.IstorijaKretanjaController;
 import Kompozicija.Kompozicija;
 import Kompozicija.KompozicijaService;
+import Konstanta.Konstanta;
 import Teritorija.Mapa;
 import Teritorija.Stanica;
 import Vozilo.Vozilo;
@@ -16,12 +18,14 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
@@ -31,13 +35,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main extends Application {
-    public static String kretanjaFolder;
-    public static String voziloConfig;
-    public static String kompozicijeFolder;
 
+    static FileHandler handler;
     static{
         try {
-            Logger.getLogger(Main.class.getName()).addHandler(new FileHandler("logs/Main.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"Main.log");
+            Logger.getLogger(Main.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -69,6 +72,7 @@ public class Main extends Application {
         new Thread(()-> Mapa.postaviMapu(root)).start();
         root.getChildren().add(kontroleHBox);
         Scene scene = new Scene( root, 600, 700);
+        primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
         scene.setFill(iscrtajMrezu());
@@ -80,6 +84,7 @@ public class Main extends Application {
                 stage.setResizable(false);
                 stage.setScene(new Scene(root1));
                 stage.show();
+                stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, event -> IstorijaKretanjaController.update=false);
             } catch (Exception ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
             }
@@ -87,16 +92,17 @@ public class Main extends Application {
         //klik na dugme START
         start.setOnAction(actionEvent -> new Thread(() -> {
             try {
-               Thread t= new Thread(new KompozicijaService(root, kompozicijeFolder));
+               Thread t= new Thread(new KompozicijaService(root, Konstanta.kompozicijeFolder));
                t.setDaemon(true);
                t.start();
-                timer.schedule(new VoziloService(root,voziloConfig), 0, 2000);
+                timer.schedule(new VoziloService(root,Konstanta.voziloConfig), 0, 2000);
             } catch (Exception ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
             }
         }).start());
         kontroleHBox.getChildren().add(start);
         kontroleHBox.getChildren().add(istorijaKretanja);
+        ucitajSlikuVagona(kontroleHBox);
         //prilikom izlaza iz programa
         primaryStage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, event->{
             timer.cancel();
@@ -105,6 +111,7 @@ public class Main extends Application {
             Stanica.stopThread=false;
             KompozicijaService.stopThread=false;
             IstorijaKretanjaController.update=false;
+            zatvoriHandlere();
         });
     }
     public ImagePattern iscrtajMrezu() {
@@ -129,12 +136,38 @@ public class Main extends Application {
             Properties parametri = new Properties();
             parametri.load(inputStream);
 
-            kretanjaFolder=parametri.getProperty("kretanjaFolder");
-            voziloConfig=parametri.getProperty("voziloConfig");
-            kompozicijeFolder=parametri.getProperty("kompozicijeFolder");
+            Konstanta.kretanjaFolder=parametri.getProperty("kretanjaFolder");
+            Konstanta.voziloConfig=parametri.getProperty("voziloConfig");
+            Konstanta.kompozicijeFolder=parametri.getProperty("kompozicijeFolder");
+            Konstanta.slikeFolder=parametri.getProperty("slikeFolder");
+            Konstanta.logFolder=parametri.getProperty("logFolder");
 
         }catch (Exception ex){
             Logger.getLogger(Main.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
         }
+    }
+    private void zatvoriHandlere(){
+        if(handler!=null)
+            handler.close();
+        if(VoziloService.handler!=null)
+            VoziloService.handler.close();
+        if(Vozilo.handler!=null)
+            Vozilo.handler.close();
+        if(Stanica.handler!=null)
+            Stanica.handler.close();
+        if(KompozicijaService.handler!=null)
+            KompozicijaService.handler.close();
+        if (Kompozicija.handler!=null)
+            Kompozicija.handler.close();
+        if(IstorijaKretanjaController.handler!=null)
+            IstorijaKretanjaController.handler.close();
+        if(IstorijaKretanja.handler!=null)
+            IstorijaKretanja.handler.close();
+    }
+    private void ucitajSlikuVagona(HBox hBox){
+        ImageView img=new ImageView();
+        img.setImage(new Image("file:"+Konstanta.slikeFolder+File.separator+"vagoni.png",450,100,false,false));
+        hBox.getChildren().add(img);
+
     }
 }

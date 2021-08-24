@@ -1,13 +1,21 @@
 package Kompozicija.Vagon;
 
+import Konstanta.Konstanta;
 import Teritorija.Element;
+
+import java.io.File;
 
 public class Vagon extends Element {
     private int duzina;
     private String oznaka;
 
     public Vagon(int duzina, String oznaka) {
-        super("Wagon.png");
+        super(Konstanta.slikeFolder+ File.separator+"vagon.png");
+        this.duzina = duzina;
+        this.oznaka = oznaka;
+    }
+    public Vagon(String imagePath,int duzina, String oznaka) {
+        super(imagePath);
         this.duzina = duzina;
         this.oznaka = oznaka;
     }

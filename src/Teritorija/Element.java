@@ -15,7 +15,7 @@ public class Element extends StackPane {
         sirinaPolja=20;
         visinaPolja=20;
         ImageView img = new ImageView();
-        img.setImage(new Image(imagePath,sirinaPolja,visinaPolja,false,false));
+        img.setImage(new Image("file:"+imagePath,sirinaPolja,visinaPolja,false,false));
         setVisible(false);
         getChildren().addAll( img);
     }

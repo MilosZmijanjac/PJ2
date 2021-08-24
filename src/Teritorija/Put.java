@@ -29,19 +29,15 @@ public class Put {
         return true;
     }
 
-
     public int getBrojVozila() {
         return brojVozila;
     }
-
     public void setBrojVozila(int brojVozila) {
         this.brojVozila = brojVozila;
     }
-
     public int getMaxBrzina() {
         return maxBrzina;
     }
-
     public void setMaxBrzina(int maxBrzina) {
         this.maxBrzina = maxBrzina;
     }

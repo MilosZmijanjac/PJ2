@@ -1,15 +1,13 @@
 package Kompozicija;
 
 import IstorijaKretanja.IstorijaKretanja;
-import Kompozicija.Vagon.Vagon;
-
+import Konstanta.Konstanta;
 import Teritorija.*;
 import javafx.application.Platform;
 import javafx.scene.Group;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.File;
+import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,20 +18,25 @@ public class Kompozicija  implements Runnable {
     private String odredisnaStanica;
     private String pocetnaStanica;
     private Lokacija pocetnaLokacija;
-    private Queue<Lokacija> lokacije=new LinkedList<>();
+    private Deque<Lokacija> lokacije=new LinkedList<>();
     private Smjer smjer=Smjer.GORE;
     private Pravac trenutniPravac;
     private int X,Y;
     private Group parent;
     boolean stop=true;
+    private static int count=0;
     public static boolean stopThread;
     private int usporenje;
     private int brzina;
     private int brojPredjenihPolja;
+    private int step;
+    private Iterator<Lokacija> iterator;
     public IstorijaKretanja istorijaKretanja;
+    public static FileHandler handler;
     static{
         try {
-            Logger.getLogger(Kompozicija.class.getName()).addHandler(new FileHandler("logs/Kompozicija.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"Kompozicija.log");
+            Logger.getLogger(Kompozicija.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -49,8 +52,8 @@ public class Kompozicija  implements Runnable {
         this.elementiKompozicije =elementi;
         this.pocetnaStanica=pocetnaStanica;
         this.odredisnaStanica=odrediste;
-        this.istorijaKretanja=new IstorijaKretanja();
-        istorijaKretanja.dodajStanicu(pocetnaStanica,0.0);
+        this.istorijaKretanja=new IstorijaKretanja("kompozicija"+count++);
+        istorijaKretanja.dodajStanicu(pocetnaStanica);
         parent=group;
 
         Platform.runLater(() -> {
@@ -82,46 +85,58 @@ public class Kompozicija  implements Runnable {
         this.odredisnaStanica = odredisnaStanica;
     }
 
-
     @Override
     public void run() {
     Y= pocetnaLokacija.getPozicijaY();
     X= pocetnaLokacija.getPozicijaX();
 
             while (stopThread) {
-                int step=0;
-                if(lokacije.size()>= elementiKompozicije.size()) {
-                    lokacije.remove();
 
+                if(lokacije.size()>= elementiKompozicije.size()) {
                     if (!Mapa.mapa[lokacije.peek().getPozicijaY()][lokacije.peek().getPozicijaX()].isStanica()) {
                         Mapa.postaviElement(lokacije.peek(), null);
                     }
+                    lokacije.remove();
                 }
                 if(stop) {
                     lokacije.add(new Lokacija(X, Y));
                     istorijaKretanja.dodajLokaciju(lokacije.peek());
                 }
 
-               for(Lokacija l:lokacije){
-                   int finalS = step;
-                   Platform.runLater(() -> {
-                       elementiKompozicije.get(finalS).setVisible(true);
-                       elementiKompozicije.get(finalS).setTranslateX(l.getPozicijaX()*20);
-                       elementiKompozicije.get(finalS).setTranslateY(l.getPozicijaY()*20);
-                       if(Mapa.mapa[l.getPozicijaY()][l.getPozicijaX()].isStanica()) {
-                           elementiKompozicije.get(finalS).setVisible(false);
-                       }
-                   });
-                   step++;
-               }
+                if(lokacije.size()<elementiKompozicije.size()&&stop) {
+                    iterator = lokacije.descendingIterator();
+                    step=elementiKompozicije.size()-1;
+                }
+                else {
+                    iterator = lokacije.iterator();
+                    step=0;
+                }
+                while(iterator.hasNext())
+                {
+                    Lokacija l=iterator.next();
+                    int finalS = step;
+                    Platform.runLater(() -> {
+                        elementiKompozicije.get(finalS).setTranslateX(l.getPozicijaX()*20);
+                        elementiKompozicije.get(finalS).setTranslateY(l.getPozicijaY()*20);
+                        elementiKompozicije.get(finalS).setVisible(true);
+                        if(Mapa.mapa[l.getPozicijaY()][l.getPozicijaX()].isStanica()) {
+                            elementiKompozicije.get(finalS).setVisible(false);
+                        }
+                    });
+                    if(lokacije.size()<elementiKompozicije.size()&&stop)
+                        step--;
+                    else
+                        step++;
+                }
+
+
                 if (Mapa.mapa[Y][X].isStanica()) {
-                    System.out.println(lokacije.size());
                     stop=false;
                     lokacije.poll();
                     if(lokacije.isEmpty()) {
                         stop=true;
                         try {
-                            istorijaKretanja.dodajStanicu(((Stanica) Mapa.mapa[Y][X].getElement()).getOznaka(),brojPredjenihPolja*brzina*usporenje);
+                            istorijaKretanja.dodajStanicu(((Stanica) Mapa.mapa[Y][X].getElement()).getOznaka());
                             ((Stanica) Mapa.mapa[Y][X].getElement()).staviKompozicijuURedCekanja(this);
                             ((Stanica) Mapa.mapa[Y][X].getElement()).oslobodiDionicu(Mapa.mapa[Y][X].getLokacija());
                         } catch (InterruptedException ex) {
@@ -129,7 +144,9 @@ public class Kompozicija  implements Runnable {
                         }
                         break;
                     }
-                }else Mapa.postaviElement(new Lokacija(X,Y), elementiKompozicije.get(elementiKompozicije.size()-1));
+                }else {
+                    Mapa.postaviElement(lokacije.getFirst(), elementiKompozicije.get(elementiKompozicije.size() - 1));
+                }
 
                 if(stop){
                     if (Mapa.mapa[Y][X].isSkretnica()) {

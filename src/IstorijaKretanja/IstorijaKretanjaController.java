@@ -1,5 +1,6 @@
 package IstorijaKretanja;
 
+import Konstanta.Konstanta;
 import Teritorija.Lokacija;
 import com.jfoenix.controls.JFXListView;
 import javafx.application.Platform;
@@ -13,7 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -33,10 +33,12 @@ public class IstorijaKretanjaController implements Initializable {
     public TextArea staniceTextArea;
     public TextArea tackeTextArea;
     public Label ukupnoVrijemeLabel;
+    public static FileHandler handler;
 
     static{
         try {
-            Logger.getLogger(IstorijaKretanjaController.class.getName()).addHandler(new FileHandler("logs/IstorijaKretanjaController.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"IstorijaKretanjaController.log");
+            Logger.getLogger(IstorijaKretanjaController.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -57,15 +59,17 @@ public class IstorijaKretanjaController implements Initializable {
             Platform.runLater(()->{
                 infoPane.setVisible(true);
                 IstorijaKretanja istorijaKretanja= kretanjaList.getSelectionModel().getSelectedItem();
+                staniceTextArea.setText("");
+                tackeTextArea.setText("");
                 if(istorijaKretanja==null)
                     return;
                 for (int i = 0; i <istorijaKretanja.getPosjeceneStanice().size() ; i++) {
-                    staniceTextArea.appendText(istorijaKretanja.getPosjeceneStanice().get(i)+" ("+istorijaKretanja.getVremenaPosjete().get(i)+") ");
+                    staniceTextArea.appendText(istorijaKretanja.getPosjeceneStanice().get(i)+" ("+String.format("%.2f",istorijaKretanja.getVremenaPosjete().get(i))+") ");
                 }
                 for (Lokacija lokacija:istorijaKretanja.getLokacije()) {
                     tackeTextArea.appendText(lokacija.toString()+", ");
                 }
-                ukupnoVrijemeLabel.setText(String.valueOf((istorijaKretanja.getVremenaPosjete().get(istorijaKretanja.getVremenaPosjete().size()-1)-istorijaKretanja.getVremenaPosjete().get(0))));
+                ukupnoVrijemeLabel.setText(String.format("%.4f",istorijaKretanja.getVremenaPosjete().get(istorijaKretanja.getVremenaPosjete().size()-1))+" s");
             });
 
         }
@@ -98,7 +102,7 @@ public class IstorijaKretanjaController implements Initializable {
             try {
                 while(update) {
                     initListView();
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 }
             } catch ( InterruptedException ex) {
                 Logger.getLogger(IstorijaKretanjaController.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
@@ -109,11 +113,11 @@ public class IstorijaKretanjaController implements Initializable {
         istorijaKretanjaArray.clear();
         IstorijaKretanja istorijaKretanja;
         ArrayList<IstorijaKretanja> istorijeKretanja = new ArrayList<>();
-        File[] tmp = new File("kretanja").listFiles();
+        File[] tmp = new File(Konstanta.kretanjaFolder).listFiles();
 
         assert tmp != null;
         for(File x : tmp){
-            System.out.println(x.getName());
+            //System.out.println(x.getName());
             istorijaKretanja=(IstorijaKretanja.deserializuj(x.toString()));
             istorijeKretanja.add(istorijaKretanja);
         }

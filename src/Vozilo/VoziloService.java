@@ -1,5 +1,6 @@
 package Vozilo;
 
+import Konstanta.Konstanta;
 import Teritorija.Lokacija;
 import Teritorija.Mapa;
 import Teritorija.Put;
@@ -8,6 +9,7 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +31,11 @@ public class VoziloService extends TimerTask {
     private Random random;
     private String putanjaDoConfigFajla;
 
+    public static FileHandler handler;
     static {
         try
-        {
-            Logger.getLogger(VoziloService.class.getName()).addHandler(new FileHandler("logs/VoziloService.log"));
+        {   handler=new FileHandler(Konstanta.logFolder+ File.separator+"VoziloService.log");
+            Logger.getLogger(VoziloService.class.getName()).addHandler(handler);
         }
         catch (Exception e)
         {
@@ -54,7 +57,7 @@ public class VoziloService extends TimerTask {
     private void ucitajParametre(){
         try (InputStream inputStream = new FileInputStream(putanjaDoConfigFajla)) {
             Properties prop = new Properties();
-            // load a properties file
+            // ucitaj properties
             prop.load(inputStream);
 
             lijeviPut.setBrojVozila(

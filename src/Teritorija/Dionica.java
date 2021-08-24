@@ -2,14 +2,12 @@ package Teritorija;
 
 public class Dionica {
     private int brojVozila=0;
-
     private Smjer smjerDionice;
-    public  Smjer getSmjerDionice(){
-        return smjerDionice;
-    }
-
     private int brzinaDionice;
 
+    public synchronized Smjer getSmjerDionice(){
+        return smjerDionice;
+    }
     public synchronized void setSmjerDionice(Smjer smjer){
         smjerDionice=smjer;
     }

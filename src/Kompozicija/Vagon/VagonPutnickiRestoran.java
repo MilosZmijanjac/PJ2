@@ -1,11 +1,15 @@
 package Kompozicija.Vagon;
 
+import Konstanta.Konstanta;
+
+import java.io.File;
+
 public class VagonPutnickiRestoran extends VagonPutnicki {
     private String opis;
     private static int count=0;
 
     public VagonPutnickiRestoran() {
-        super(count+10, "VPR"+count);
+        super(Konstanta.slikeFolder+ File.separator+"VPR.png",count+10, "VPR"+count);
         this.opis = "opis"+count;
         count++;
     }

@@ -1,8 +1,10 @@
 package Vozilo;
 
+import Konstanta.Konstanta;
 import Teritorija.*;
 import javafx.application.Platform;
 
+import java.io.File;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,9 +20,11 @@ public class Vozilo extends Element implements Runnable {
     private Lokacija pocetnaLokacija;
     private Smjer smjer;
     public static boolean stopThread;
+    public static FileHandler handler;
     static{
         try {
-            Logger.getLogger(Vozilo.class.getName()).addHandler(new FileHandler("logs/Vozilo.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"Vozilo.log");
+            Logger.getLogger(Vozilo.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -62,7 +66,7 @@ public class Vozilo extends Element implements Runnable {
 
                 if(Mapa.mapa[Y][X].isKraj()) {
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep((long) brzina);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Vozilo.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
                     }

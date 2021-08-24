@@ -1,11 +1,14 @@
 package Teritorija;
 
+import Konstanta.Konstanta;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import java.io.File;
 
 
 public class Mapa {
@@ -16,7 +19,6 @@ public class Mapa {
     public static Dionica BC;
     public static Dionica CD;
     public static Dionica CE;
-
 
     public static void postaviMapu(Group gr){
         kreirajTeritoriju();
@@ -44,7 +46,7 @@ public class Mapa {
         mapa[27][2].setStanica(true);
         mapa[28][2]=new Polje(new Lokacija(2,28),Pravac.VERTIKALAN,stanica);
         mapa[28][2].setStanica(true);
-        kreirajStanicuNaMapi(gr,"StanicaA.png",1,27);
+        kreirajStanicuNaMapi(gr, Konstanta.slikeFolder+File.separator+"StanicaA.png",1,27);
         new Thread(stanica).start();
     }
     private static void postaviStanicuB(Group gr ){
@@ -53,11 +55,10 @@ public class Mapa {
         mapa[6][6].setStanica(true);
         mapa[6][7]=new Polje(new Lokacija(7,6),Pravac.VERTIKALAN,stanica);
         mapa[6][7].setStanica(true);
-        kreirajStanicuNaMapi(gr,"StanicaB.png",6,5);
+        kreirajStanicuNaMapi(gr, Konstanta.slikeFolder+File.separator+"StanicaB.png",6,5);
         new Thread(stanica).start();
     }
     private static void postaviDionicuAB(Group gr){
-
 
         //dionica do skretanja desno
         for(int i = 26; i > 15; i--) {
@@ -75,6 +76,7 @@ public class Mapa {
             mapa[i][5]=new Polje(new Lokacija(5,i),Pravac.VERTIKALAN,null);
             kreirajPoljeNaMapi(gr,Color.GREY,5,i);
         }
+        kreirajPoljeNaMapi(gr,Color.GREY,2,29);
         mapa[16][2].setSkretnica(true);
         mapa[16][5].setSkretnica(true);
         mapa[6][5].setSkretnica(true);
@@ -93,7 +95,7 @@ public class Mapa {
         mapa[13][19].setStanica(true);
         mapa[13][20]=new Polje(new Lokacija(20,13),Pravac.VERTIKALAN,stanica);
         mapa[13][20].setStanica(true);
-        kreirajStanicuNaMapi(gr,"StanicaC.png",19,12);
+        kreirajStanicuNaMapi(gr, Konstanta.slikeFolder+File.separator+ "StanicaC.png",19,12);
         new Thread(stanica).start();
     }
     private static void postaviDionicuBC(Group gr){
@@ -119,7 +121,7 @@ public class Mapa {
         mapa[1][26].setStanica(true);
         mapa[1][27]=new Polje(new Lokacija(27,1),Pravac.VERTIKALAN,stanica);
         mapa[1][27].setStanica(true);
-        kreirajStanicuNaMapi(gr,"StanicaD.png",26,1);
+        kreirajStanicuNaMapi(gr, Konstanta.slikeFolder+File.separator+ "StanicaD.png",26,1);
         new Thread(stanica).start();
     }
     private static void postaviDionicuCD(Group gr){
@@ -182,7 +184,7 @@ public class Mapa {
         Stanica stanica = new Stanica("E",1);
         mapa[25][26]=new Polje(new Lokacija(26,25),Pravac.VERTIKALAN,stanica);
         mapa[25][26].setStanica(true);
-        kreirajStanicuNaMapi(gr,"StanicaE.png",26,25);
+        kreirajStanicuNaMapi(gr, Konstanta.slikeFolder+File.separator+ "StanicaE.png",25,25);
         new Thread(stanica).start();
     }
     private static void postaviDionicuCE(Group gr){
@@ -201,6 +203,9 @@ public class Mapa {
             mapa[i][26]=new Polje(new Lokacija(26,i),Pravac.VERTIKALAN,null);
             kreirajPoljeNaMapi(gr,Color.GREY,26,i);
         }
+        kreirajPoljeNaMapi(gr,Color.GREY,27,25);
+        kreirajPoljeNaMapi(gr,Color.GREY,28,25);
+        kreirajPoljeNaMapi(gr,Color.GREY,29,25);
         mapa[18][20].setSkretnica(true);
         mapa[18][26].setSkretnica(true);
         mapa[21][26].setPrelaz(true);
@@ -296,7 +301,7 @@ public class Mapa {
     private static void kreirajStanicuNaMapi(Group group,String imagePath,double x,double y){
         Platform.runLater(()-> {
             ImageView img = new ImageView();
-            img.setImage(new Image(imagePath, 40, 40, false, false));
+            img.setImage(new Image("file:"+imagePath, 40, 40, false, false));
             img.setX(x * 20);
             img.setY(y * 20);
             group.getChildren().add(img);

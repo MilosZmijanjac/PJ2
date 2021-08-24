@@ -2,8 +2,9 @@ package Teritorija;
 
 import IstorijaKretanja.IstorijaKretanja;
 import Kompozicija.Kompozicija;
+import Konstanta.Konstanta;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -15,16 +16,18 @@ public class Stanica extends Element implements Runnable{
     private Kompozicija trenutnaKompozicija;
     public static boolean stopThread;
     Object lock=new Object();
+    public static FileHandler handler;
     static{
         try {
-            Logger.getLogger(Stanica.class.getName()).addHandler(new FileHandler("logs/Stanica.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"Stanica.log");
+            Logger.getLogger(Stanica.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
     public Stanica(String oznaka,int brojUlaza) {
-        super("StanicaA.png");
+        super(Konstanta.slikeFolder+File.separator+"StanicaA.png");
         this.oznaka = oznaka;
         redoviCekanja= new LinkedBlockingQueue[brojUlaza];
         for(int i =0;i<brojUlaza;i++)
@@ -143,11 +146,11 @@ public class Stanica extends Element implements Runnable{
         }
     }
     public void oslobodiDionicu(Lokacija lokacija){
-      if(lokacija.odgovaraKoordinatama(6,6)||lokacija.odgovaraKoordinatama(27,2))
+      if(lokacija.odgovaraKoordinatama(6,6)||lokacija.odgovaraKoordinatama(2,27))
           Mapa.AB.oslobodi();
-      else if(lokacija.odgovaraKoordinatama(6,7)||lokacija.odgovaraKoordinatama(19,12))
+      else if(lokacija.odgovaraKoordinatama(7,6)||lokacija.odgovaraKoordinatama(19,12))
           Mapa.BC.oslobodi();
-      else if(lokacija.odgovaraKoordinatama(19,13)||lokacija.odgovaraKoordinatama(26,1))
+      else if(lokacija.odgovaraKoordinatama(20,12)||lokacija.odgovaraKoordinatama(26,1))
           Mapa.CD.oslobodi();
       else if(lokacija.odgovaraKoordinatama(20,13)||lokacija.odgovaraKoordinatama(26,25))
           Mapa.CE.oslobodi();
@@ -163,7 +166,7 @@ public class Stanica extends Element implements Runnable{
                         pripremiZaKretanje(trenutnaKompozicija);
                         if (oznaka.equals(trenutnaKompozicija.getOdredisnaStanica())) {
                             try {
-                                IstorijaKretanja.serializuj(trenutnaKompozicija.istorijaKretanja);
+                                new IstorijaKretanja().serializuj(trenutnaKompozicija.istorijaKretanja);
                                 kompozicijas.take();
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(Stanica.class.getName()).log(Level.WARNING, ex.fillInStackTrace().toString());
@@ -180,10 +183,11 @@ public class Stanica extends Element implements Runnable{
 
                                 new Thread(trenutnaKompozicija).start();
 
-                            } else if (Mapa.smjerDionice(trenutnaKompozicija.getPocetnaLokacija()) == trenutnaKompozicija.getSmjer()
-                                    &&Mapa.getElement(trenutnaKompozicija.getPocetnaLokacija())==null) {
+                            } else if (((Mapa.smjerDionice(trenutnaKompozicija.getPocetnaLokacija()))== trenutnaKompozicija.getSmjer())&&Mapa.getElement(trenutnaKompozicija.getPocetnaLokacija())==null)
+                                     {
                                 if(getBrzinuDionice(trenutnaKompozicija.getPocetnaLokacija())<trenutnaKompozicija.getBrzina())
-                                    trenutnaKompozicija.setUsporenje(trenutnaKompozicija.getBrzina()/getBrzinuDionice(trenutnaKompozicija.getPocetnaLokacija()));
+                                    trenutnaKompozicija.setUsporenje(trenutnaKompozicija.getBrzina()/
+                                            getBrzinuDionice(trenutnaKompozicija.getPocetnaLokacija()));
                                 zauzmiDionicu();
                                 try {
                                     kompozicijas.take();

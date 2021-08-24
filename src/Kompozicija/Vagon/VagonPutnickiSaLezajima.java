@@ -1,15 +1,19 @@
 package Kompozicija.Vagon;
 
+import Konstanta.Konstanta;
+
+import java.io.File;
+
 public class VagonPutnickiSaLezajima extends VagonPutnicki{
     private int brojMjesta;
     private static int count=0;
 
     public VagonPutnickiSaLezajima(int duzina, String oznaka, int brojMjesta) {
-        super(duzina, oznaka);
+        super(Konstanta.slikeFolder+ File.separator+"VPL.png",duzina, oznaka);
         this.brojMjesta = brojMjesta;
     }
     public VagonPutnickiSaLezajima() {
-        super(count+10, "VPL"+count);
+        super(Konstanta.slikeFolder+ File.separator+"VPL.png",count+10, "VPL"+count);
         this.brojMjesta = count+20;
         count++;
     }

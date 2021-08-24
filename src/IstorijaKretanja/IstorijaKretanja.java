@@ -1,5 +1,6 @@
 package IstorijaKretanja;
 
+import Konstanta.Konstanta;
 import Teritorija.Lokacija;
 
 import java.io.*;
@@ -12,29 +13,42 @@ public class IstorijaKretanja  implements Serializable {
     private ArrayList<String> posjeceneStanice;
     private ArrayList<Double> vremenaPosjete;
     private ArrayList<Lokacija> lokacije;
-    private static int count=0;
-    private String fileName;
+    private  String fileName;
+    private double startTime;
+    public static FileHandler handler;
+    private static final long serialVersionUID = 6529685098267757690L;
     static{
         try {
-            Logger.getLogger(IstorijaKretanja.class.getName()).addHandler(new FileHandler("logs/IstorijaKretanja.log"));
+            handler=new FileHandler(Konstanta.logFolder+ File.separator+"IstorijaKretanja.log");
+            Logger.getLogger(IstorijaKretanja.class.getName()).addHandler(handler);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public IstorijaKretanja(){
+    public IstorijaKretanja(){}
+    public IstorijaKretanja(String nazivKompozicije){
         posjeceneStanice=new ArrayList<>();
         vremenaPosjete=new ArrayList<>();
         lokacije=new ArrayList<>();
-        fileName="kompozicija"+count;
+        fileName=nazivKompozicije;
+        int brojFajlova;
+        File file=new File(Konstanta.kretanjaFolder+File.separator+fileName+".ser");
+        if(file.exists()){
+            String finalFileName = fileName;
+            brojFajlova=file.getParentFile().list((dir, name) -> name.startsWith(finalFileName)).length;
+            fileName=new StringBuilder().append(fileName).append(" (").append(brojFajlova++).append(")").toString();
+        }
+
+        startTime=System.currentTimeMillis()/1000.0;
     }
-    public String getFileName(){
+    public  String getFileName(){
         return fileName;
     }
-    public void dodajStanicu(String stanica,double vrijeme){
+    public synchronized void dodajStanicu(String stanica){
         posjeceneStanice.add(stanica);
-        vremenaPosjete.add(vrijeme/1000.0);
+        vremenaPosjete.add(System.currentTimeMillis()/1000.0-startTime);
     }
     public void dodajLokaciju(Lokacija lokacija){
         lokacije.add(lokacija);
@@ -49,10 +63,20 @@ public class IstorijaKretanja  implements Serializable {
         return vremenaPosjete;
     }
 
-    public static void serializuj(IstorijaKretanja istorijaKretanja)  {
+    public void serializuj(IstorijaKretanja istorijaKretanja)  {
         try {
+            String filePath=Konstanta.kretanjaFolder+File.separator;
+            String fileName=istorijaKretanja.getFileName();
+            String fileExtension=".ser";
+            int brojFajlova;
+            File file=new File(filePath+fileName+fileExtension);
+            if(file.exists()){
+                String finalFileName = fileName;
+                brojFajlova=file.getParentFile().list((dir, name) -> name.startsWith(finalFileName)).length;
+                fileName=new StringBuilder().append(fileName).append(" (").append(brojFajlova++).append(")").toString();
+            }
             FileOutputStream fileOut =
-                    new FileOutputStream( "kretanja/kompozicija" + (count++) + ".ser");
+                    new FileOutputStream( filePath+fileName+fileExtension);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(istorijaKretanja);
             out.close();
