@@ -1,0 +1,3 @@
+ br. lokomotiva, br. vagona,raspored,brzina kretanja, pocetna, odredisna
+------------------------------------------------------------------------
+ 2,3,LUE;LPE;VPR;VPR;VPN,200,B,A
