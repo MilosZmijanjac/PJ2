@@ -1,0 +1,16 @@
+Može se smatrati da kompoziciju čine lokomotive i vagoni, tako da se implementacija kretanja veže samo za kretanje kompozicije.
+Prilikom iscrtavanja kompozicije na mapi, svaki element zauzima jedno polje (npr. 1 lokomotiva i 3 vagona zauzeće 4 polja).
+Vagoni za posebne namjene mogu ići sa univerzalnom ili manevarskom lokomotivom.
+Kada voz dođe do odredišne stanice (posljednji element), onda se može ukloniti sa mape.
+Potrebno je voditi računa da ne dođe do sudara vozila, tako što prilikom kretanja vozilo ne može preći na zauzeto polje, već se zadržava na trenutnom polju dok se sljedeće ne oslobodi.
+Kretanje po poljima izmedju stanica A i E i krajeva mape (jedno i tri polja) moze se implementirati proizvoljno.
+Voz može znati koje stanice treba proći (npr. B-C-D).
+Potrebno je postepeno uklanjati elemente kompozicije prilikom ulaska u stanicu (polje po polje). Na poljima stanice nije potrebno prikazivati dijelove voza.
+Pocetna pozicija kompozicije moze biti neka stanica.
+Potrebno je da se lokomotive i vagoni na neki nacin razlikuju na mapi kako bi se provjerila ispravnost simulacije u odnosu na konfiguraciju (boja, oznaka, slika...).
+Primjeri linija: A-B-C, D-C, A-B-C-E, E-C-B-A...
+Voz postepeno "ulazi" na mapu, tj. ako počinje kretanje iz stanice ili od ivice mape onda se prvo pojavljuje lokomotiva, pa prvi vagon, drugi...
+Sva vozila zauzimaju jedno polje mape, a kompozicije onoliko polja koliko elemenata imaju.
+Vozila se krecu od pocetka do kraja puta i kada zavrse kretanje onda se mogu ukloniti sa mape i ne vracaju se na pocetak puta.
+Nije obavezno prikazivanje vozova na poljima stanice
+U GUI dijelu aplikacije potrebno je dodati opciju koja otvara novi prozor u kojem su prikazana sva kretanja i njihovi detalji.  - ovaj prikaz se odnosi samo na vozove (ne vozila). Dovoljno je napraviti prozor u kojem će biti npr. lista svih prethodno serijalizovanih kretanja (ispisati imena) i klikom na jedan naziv pored se mogu učitati svi podaci u neko tekst polje ili neki detaljniji prikaz. Nije potrebno osvježavati podatke u realnom vremenu.
